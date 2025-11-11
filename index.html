@@ -126,6 +126,56 @@
       color: #795548;
     }
 
+    /* 音乐控制样式 */
+    .music-control {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: var(--white);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 10;
+    }
+
+    .music-control:hover {
+      transform: scale(1.1);
+      background: var(--gold);
+    }
+
+    .music-icon {
+      font-size: 1.2rem;
+      color: var(--red-primary);
+    }
+
+    /* 音频可视化效果 */
+    .audio-visualizer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 20px;
+      margin-bottom: 1.5rem;
+    }
+
+    .visualizer-bar {
+      width: 3px;
+      background: var(--red-primary);
+      border-radius: 3px;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { height: 5px; }
+      50% { height: 20px; }
+    }
+
     .footer {
       font-size: 0.9rem;
       color: #999;
@@ -192,6 +242,31 @@
 </head>
 <body>
   <div class="container">
+    <!-- 音乐控制按钮 -->
+    <div class="music-control" id="musicControl">
+      <i class="fa fa-music music-icon" id="musicIcon"></i>
+    </div>
+
+    <!-- 音频元素（隐藏） -->
+    <audio id="backgroundMusic" loop>
+      <source src="https://raw.githubusercontent.com/WHX11258/2026.github.io/fce0a4f0e48ceba67ca442aee675f91de7a09a49/new_year.mp3" type="audio/mpeg">
+     您的浏览器不支持音频播放
+    </audio>
+
+    <!-- 音频可视化 -->
+    <div class="audio-visualizer" id="visualizer">
+      <div class="visualizer-bar" style="animation-delay: 0s;"></div>
+      <div class="visualizer-bar" style="animation-delay: 0.1s;"></div>
+      <div class="visualizer-bar" style="animation-delay: 0.2s;"></div>
+      <div class="visualizer-bar" style="animation-delay: 0.3s;"></div>
+      <div class="visualizer-bar" style="animation-delay: 0.4s;"></div>
+      <div class="visualizer-bar" style="animation-delay: 0.5s;"></div>
+      <div class="visualizer-bar" style="animation-delay: 0.6s;"></div>
+      <div class="visualizer-bar" style="animation-delay: 0.7s;"></div>
+      <div class="visualizer-bar" style="animation-delay: 0.8s;"></div>
+      <div class="visualizer-bar" style="animation-delay: 0.9s;"></div>
+    </div>
+
     <h1 class="title">
       <i class="fa fa-calendar-check-o"></i> 2026春节倒计时
     </h1>
@@ -219,7 +294,7 @@
     <div class="spring-info">
       <i class="fa fa-info-circle"></i> 2026年春节：公历2026年2月17日（星期二），农历丙午年正月初一
     </div>
-<audio controls src="new_year.mp3"></audio>
+
     <div class="footer">
       <i class="fa fa-github"></i>
       <span>托管于 GitHub Pages</span>
@@ -262,6 +337,49 @@
     updateCountdown();
     const timer = setInterval(updateCountdown, 1000);
 
+    // 音乐控制功能
+    const musicControl = document.getElementById('musicControl');
+    const backgroundMusic = document.getElementById('backgroundMusic');
+    const musicIcon = document.getElementById('musicIcon');
+    const visualizer = document.getElementById('visualizer');
+    let isPlaying = false;
+
+    // 尝试自动播放音乐（受浏览器策略限制）
+    function tryAutoPlay() {
+      backgroundMusic.play().then(() => {
+        isPlaying = true;
+        updateMusicUI();
+      }).catch(err => {
+        console.log('自动播放失败，等待用户交互后播放:', err);
+      });
+    }
+
+    // 更新音乐控制UI
+    function updateMusicUI() {
+      if (isPlaying) {
+        musicIcon.className = 'fa fa-pause music-icon';
+        visualizer.style.display = 'flex'; // 显示可视化效果
+      } else {
+        musicIcon.className = 'fa fa-music music-icon';
+        visualizer.style.display = 'none'; // 隐藏可视化效果
+      }
+    }
+
+    // 切换播放/暂停
+    musicControl.addEventListener('click', () => {
+      if (isPlaying) {
+        backgroundMusic.pause();
+      } else {
+        backgroundMusic.play();
+      }
+      isPlaying = !isPlaying;
+      updateMusicUI();
+    });
+
+    // 用户交互时尝试播放（解决浏览器自动播放限制）
+    document.addEventListener('click', tryAutoPlay, { once: true });
+    document.addEventListener('touchstart', tryAutoPlay, { once: true });
+
     // 随机生成烟花装饰
     function createFireworks() {
       const container = document.querySelector('.container');
@@ -285,7 +403,10 @@
     }
 
     // 页面加载完成后创建烟花
-    window.addEventListener('load', createFireworks);
+    window.addEventListener('load', () => {
+      createFireworks();
+      tryAutoPlay(); // 页面加载后尝试自动播放
+    });
   </script>
 </body>
 </html>
